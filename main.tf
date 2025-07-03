@@ -1,3 +1,4 @@
+# EKS Cluster
 module "eks" {
   source          = "terraform-aws-modules/eks/aws"
   version         = "~> 20.0"
@@ -9,14 +10,34 @@ module "eks" {
 
   enable_irsa = true
 
-  node_groups = {
-    default = {
-      desired_capacity = 2
-      max_capacity     = 3
-      min_capacity     = 1
+  tags = {
+    Environment = "dev"
+    Terraform   = "true"
+  }
+}
 
-      instance_types = ["t3.medium"]
-      capacity_type  = "ON_DEMAND"
-    }
+# Node Group (separate submodule)
+module "eks_node_group" {
+  source  = "terraform-aws-modules/eks/aws//modules/eks-managed-node-group"
+  version = "~> 20.0"
+
+  cluster_name = module.eks.cluster_name
+  cluster_version = module.eks.cluster_version
+  subnet_ids   = var.subnet_ids
+
+  name = "default-node-group"
+
+  instance_types = ["t3.medium"]
+
+  min_size     = 1
+  max_size     = 3
+  desired_size = 2
+
+  capacity_type = "ON_DEMAND"
+
+  create = true
+
+  tags = {
+    Name = "eks-node-group"
   }
 }
