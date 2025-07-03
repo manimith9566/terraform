@@ -20,7 +20,8 @@ module "eks" {
 module "eks_node_group" {
   source  = "terraform-aws-modules/eks/aws//modules/eks-managed-node-group"
   version = "~> 20.0"
-
+  
+  cluster_service_cidr = module.eks.cluster_service_cidr
   cluster_name = module.eks.cluster_name
   cluster_version = module.eks.cluster_version
   subnet_ids   = var.subnet_ids
